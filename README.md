@@ -6,11 +6,7 @@ or as a *live Lichess bot*, letting players face it in real games.
 
 *Overview*
 
-The system balances *speed*, *simplicity*, and *intelligence*. The neural
-network is intentionally lightweight, with only *12 parameters* tied to key
-heuristics (piece activity, king safety, development, central control, etc.).
-By keeping evaluation cheap, the engine often searches *one depth deeper* in
-the same time budget, which typically helps strength more than a bulky model.
+The system focuses on speed, simplicity, and intelligence. The neural network is small, with about 12 nodes—one for each type of piece, such as white pawns or black knights. Each node measures activity, which is based on how close the piece is to the four central squares of the board. Pieces closer to the center are considered more active because they control more space and can move to more places. Each activity value is multiplied by a learned weight, and all results are added together to produce a final evaluation. This simple setup keeps the model fast and interpretable, allowing the engine to search one move deeper in the same time.
 
 *Architecture and Pipeline*
 

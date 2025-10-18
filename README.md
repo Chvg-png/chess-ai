@@ -1,54 +1,76 @@
-   Chess AI — Neural Evaluation Meets Search Logic
+*Chess AI — Neural Evaluation Meets Search Logic*
 
-This project is a chess engine that merges traditional search algorithms with a neural-network–based evaluation function. It is designed to function both as a standalone engine and as a live bot connected to the Lichess API, allowing players to face it directly in real games.
+This project is a chess engine that merges traditional search algorithms with a
+neural-network–based evaluation function. It can run as a *standalone engine*
+or as a *live Lichess bot*, letting players face it in real games.
 
-At its core, the system balances speed, simplicity, and intelligence. The neural network is intentionally lightweight. Containing only 12 parameters that correspond to key chess heuristics such as piece activity, king safety, and development. This design choice reflects a guiding belief behind the engine: that deeper and more efficient search often contributes more to playing strength than an overly complex evaluation model. By minimizing the computational cost of evaluation, the engine gains the freedom to search one depth further within the same time frame, ultimately improving its move accuracy and strategic foresight.
+*Overview*
 
-   Architecture and Pipeline
+The system balances *speed*, *simplicity*, and *intelligence*. The neural
+network is intentionally lightweight, with only *12 parameters* tied to key
+heuristics (piece activity, king safety, development, central control, etc.).
+By keeping evaluation cheap, the engine often searches *one depth deeper* in
+the same time budget, which typically helps strength more than a bulky model.
 
-The engine’s structure follows a clear and modular pipeline. It begins with data collection, drawing on a massive dataset of approximately 250 million analyzed Lichess positions. Each position, stored in JSON format, includes a FEN string and a Stockfish evaluation, serving as the training ground for the neural model.
+*Architecture and Pipeline*
 
-These positions are parsed and preprocessed into a simplified representation that captures 12 heuristic aspects of the position—ranging from piece activity and king safety to central control and mobility. These numeric features form the inputs to the neural network, which produces a single scalar evaluation representing the predicted centipawn advantage for the current player.
+1) *Data collection*: ~250M analyzed Lichess positions (JSON), each with FEN and
+   a Stockfish centipawn evaluation (training target).
+2) *Feature extraction*: each position becomes 12 numeric heuristic features
+   (activity, king safety, central control, mobility, pawn structure, etc.).
+3) *Neural evaluation*: the network outputs a single scalar (predicted
+   centipawn advantage for the side to move).
+4) *Search integration*: the evaluation feeds a minimax search with alpha–beta
+   pruning; optional quiescence search extends volatile lines (e.g., captures).
 
-Once a position is evaluated, the result feeds into the search algorithm, which explores the game tree to select the best move. The engine employs minimax search with alpha–beta pruning to efficiently explore promising branches while discarding clearly inferior ones. It also includes an optional quiescence search, which extends the exploration of volatile positions (such as those involving captures) to ensure stable evaluations.
+*Algorithm and Time Management*
 
-   Algorithm and Time Management
+- *Move generation*: python-chess.
+- *Search*: minimax + alpha–beta pruning; optional quiescence.
+- *Timing*: by default, allocate *70% of increment + 3% of remaining time* to
+  the move (tunable in code). Suited for live Lichess play, where latency
+  matters.
+- *Lichess integration*: via the Berserk API.
 
-When deciding on a move, the engine first generates all legal continuations using the python-chess library. Each resulting position is evaluated by the neural network, and the minimax algorithm propagates the scores up the search tree, alternating between maximizing and minimizing layers depending on the side to move. Alpha–beta pruning significantly reduces the number of nodes evaluated by skipping lines that cannot influence the final decision.
+*Metrics and Evaluation*
 
-For timing, the engine uses a dynamic allocation strategy that scales with both the clock and the increment. By default, it assigns 70% of the increment plus 3% of the remaining time to each move, though these constants are adjustable within the code. This adaptive approach balances stability with responsiveness, making the engine suitable for live play on Lichess, where network latency can influence move timing.
+Training uses Stockfish centipawn outputs as ground truth. In practice, the
+engine plays strongly for its simplicity:
+- Consistently defeats *600–800* rated players in 3+2 rapid.
+- Moves show human-like priorities: activity, coordination, development.
 
-   Metrics and Evaluation
+*Implementation and Usage*
 
-Training the evaluation network relied on Stockfish’s centipawn outputs as ground truth.
+- *Language*: Python
+- *Libraries*: PyTorch (neural net), python-chess (moves), Berserk (Lichess API)
 
-The result is an evaluation function that, while simple, performs remarkably well when integrated with the search system. In testing, the engine has consistently defeated 600–800 rated players on Chess.com in 3+2 rapid games. Its moves exhibit clear understanding of activity, coordination, and development—attributes that emerge naturally from the heuristics it encodes. Though it cannot rival high-level engines, it demonstrates stable, human-like decision-making and a coherent playing style.
+*Command to download/run*
 
-  Implementation and Usage
+(Replace the placeholders with your actual commands or scripts.)
+- Clone:    git clone <YOUR_REPO_URL>
+- Install:  pip install -r requirements.txt
+- Local:    python -m your_engine.play
+- Lichess:  python -m your_engine.bot   (requires API token/config)
 
-The engine is implemented entirely in Python, with PyTorch handling the neural network, python-chess providing move generation, and Berserk managing communication with the Lichess API.
+*Design Philosophy*
 
-**Command to download/run**
+This project explores a middle path between machine learning and classical AI:
+efficient, interpretable heuristics guiding a fast search. Each of the *12*
+inputs (e.g., pawn structure, mobility, central control) corresponds to a
+recognizable chess idea, so users can reason about changes in evaluation. The
+network augments the tree with human-like intuition without overwhelming it.
 
-  Design Philosophy
+*Limitations and Future Work*
 
-This project explores a middle ground between machine learning and classical AI. Rather than relying on massive deep networks or exhaustive datasets, it emphasizes efficiency and interpretability. Each of the 12 input heuristics—pawn structure, piece mobility, central control, and others—corresponds to a recognizable chess concept, allowing users to understand how and why the evaluation changes.
+- No transposition table or iterative deepening (yet).
+- Limited positional/endgame nuance compared to large engines.
+- Future: TT + ID, improved quiescence, opening book/endgame tables, stronger
+  feature set, and lightweight policy/ordering aids.
 
-In essence, the network augments the search tree with human-like intuition without overwhelming it. This balance of speed and comprehension allows the system to operate in real time while producing strong, explainable moves.
+*Resources*
 
-  Limitations and Future Work
-
-The engine’s current simplicity is both its strength and its constraint. Its evaluation lacks positional nuance, its search does not yet use transposition tables or iterative deepening, and its endgame knowledge remains minimal.
- 
-
-  Resources
-
-The development of this engine draws on several open resources:
-
-Lichess Database: https://database.lichess.org/
-Lichess API: https://lichess.org/api/
-Python-Chess Library: https://python-chess.readthedocs.io/en/latest/
-PyTorch: https://pytorch.org/
-Chess Programming Wiki: https://www.chessprogramming.org/Main_Page
-
-
+- Lichess Database: https://database.lichess.org/
+- Lichess API: https://lichess.org/api
+- python-chess: https://python-chess.readthedocs.io/en/latest/
+- PyTorch: https://pytorch.org/
+- Chess Programming Wiki: https://www.chessprogramming.org/Main_Page

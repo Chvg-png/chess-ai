@@ -19,6 +19,10 @@ The system focuses on speed, simplicity, and intelligence. The neural network is
 4) *Search integration*: the evaluation feeds a minimax search with alpha–beta
    pruning; optional quiescence search extends volatile lines (e.g., captures).
 
+> **Quiescence search (what it means):**  
+> Instead of stopping evaluation in the middle of a tactical fight, the engine continues searching noisy positions (like checks or captures) until things “quiet down.”  
+> This prevents large tactical swings from being misjudged by cutting search too early.
+
 *Algorithm and Time Management*
 
 - *Move generation*: python-chess.
@@ -30,8 +34,12 @@ The system focuses on speed, simplicity, and intelligence. The neural network is
 
 *Metrics and Evaluation*
 
-Training uses Stockfish centipawn outputs as ground truth. In practice, the
-engine plays strongly for its simplicity:
+Training uses Stockfish centipawn outputs as ground truth.  
+The model’s prediction is compared to Stockfish using numerical error metrics
+— primarily **MAE (Mean Absolute Error)** — on held-out positions.  
+Lower MAE means the NN more closely matches Stockfish’s judgment.
+
+In practice, the engine plays strongly for its simplicity:
 - Consistently defeats *600–800* rated players in 3+2 rapid.
 - Moves show human-like priorities: activity, coordination, development.
 
@@ -59,6 +67,17 @@ network augments the tree with human-like intuition without overwhelming it.
 *Limitations and Future Work*
 
 - No transposition table or iterative deepening (yet).
+
+> **Transposition table (TT — what it means):**  
+> A cache that stores previously evaluated positions so the engine doesn’t
+> recompute them if reached again through a different move order.  
+> This saves time and allows the engine to search deeper.
+
+> **Iterative deepening (ID — what it means):**  
+> The engine first searches shallow depths, then gradually increases depth.  
+> Earlier searches help order moves better for deeper searches, making
+> alpha–beta pruning more effective and improving time management.
+
 - Limited positional/endgame nuance compared to large engines.
 - Future: TT + ID, improved quiescence, opening book/endgame tables, stronger
   feature set, and lightweight policy/ordering aids.

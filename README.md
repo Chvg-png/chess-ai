@@ -13,7 +13,6 @@ The system focuses on speed, simplicity, and intelligence. The neural network is
 1) *Data collection*: ~250M analyzed Lichess positions (JSON), each with FEN and
    a Stockfish centipawn evaluation (training target).
 2) *Feature extraction*: each position becomes 12 numeric heuristic features
-   (activity, king safety, central control, mobility, pawn structure, etc.).
 3) *Neural evaluation*: the network outputs a single scalar (predicted
    centipawn advantage for the side to move).
 4) *Search integration*: the evaluation feeds a minimax search with alpha–beta
@@ -48,20 +47,11 @@ In practice, the engine plays strongly for its simplicity:
 - *Language*: Python
 - *Libraries*: PyTorch (neural net), python-chess (moves), Berserk (Lichess API)
 
-*Command to download/run*
-
-(Replace the placeholders with your actual commands or scripts.)
-- Clone:    git clone <YOUR_REPO_URL>
-- Install:  pip install -r requirements.txt
-- Local:    python -m your_engine.play
-- Lichess:  python -m your_engine.bot   (requires API token/config)
 
 *Design Philosophy*
 
 This project explores a middle path between machine learning and classical AI:
-efficient, interpretable heuristics guiding a fast search. Each of the *12*
-inputs (e.g., pawn structure, mobility, central control) corresponds to a
-recognizable chess idea, so users can reason about changes in evaluation. The
+efficient, interpretable heuristics guiding a fast search. The
 network augments the tree with human-like intuition without overwhelming it.
 
 *Limitations and Future Work*
@@ -79,9 +69,7 @@ network augments the tree with human-like intuition without overwhelming it.
 > alpha–beta pruning more effective and improving time management.
 
 - Limited positional/endgame nuance compared to large engines.
-- Future: TT + ID, improved quiescence, opening book/endgame tables, stronger
-  feature set, and lightweight policy/ordering aids.
-
+- Future: TT + ID, improved quiescence, opening book/endgame tables.
 *Resources*
 
 - Lichess Database: https://database.lichess.org/
